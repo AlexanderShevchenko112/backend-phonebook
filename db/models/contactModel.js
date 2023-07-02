@@ -17,3 +17,5 @@ const schemaContact = Schema(
 );
 
 const Contact = model("contact", schemaContact);
+
+module.exports = Contact;
