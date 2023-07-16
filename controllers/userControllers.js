@@ -1,8 +1,13 @@
 const User = require("../db/models/user");
 const gravatar = require("gravatar");
 const jwt = require("jsonwebtoken");
+const fs = require("fs").promises;
+const path = require("path");
+
 require("dotenv").config();
 const { SECRET_KEY } = process.env;
+
+const avatarDir = path.join(__dirname, "../", "public", "avatars");
 
 const signup = async (req, res, next) => {
   try {
@@ -88,9 +93,21 @@ const current = async (req, res, next) => {
   });
 };
 
+const updateAvatar = async (req, res, next) => {
+  const { path: tempUpload, originalname } = req.file;
+  const { _id } = req.user;
+  const fileName = `${_id}${originalname}`;
+  const resultPath = path.join(avatarDir, fileName);
+  await fs.rename(tempUpload, resultPath);
+  const avatarURL = path.join("avatars", fileName);
+  await User.findByIdAndUpdate(_id, { avatarURL });
+  res.json({ avatarURL });
+};
+
 module.exports = {
   signup,
   login,
   logout,
   current,
+  updateAvatar,
 };
